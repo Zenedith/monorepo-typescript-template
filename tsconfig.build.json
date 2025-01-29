@@ -1,0 +1,19 @@
+{
+  "exclude": ["**/*.test.ts","**/__tests__/**/*.ts", "**/*.spec.ts", "**/*.test.ts", "**/*.stub.ts", "node_modules", "dist"],
+  "compileOnSave": false,
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "es2022",
+    "lib": ["es2022"],
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@project/*": ["./libs/*/"]
+    }
+  }
+}

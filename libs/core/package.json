@@ -1,0 +1,34 @@
+{
+  "name": "@project/core",
+  "version": "0.0.1",
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "rm -rf dist/* && tsc -p tsconfig.pkg.json",
+    "tsc:check": "tsc --noEmit -p tsconfig.pkg.json",
+    "tsc:watch": "tsc -w -p tsconfig.pkg.json",
+    "test": "jest",
+    "ncu": "ncu -u",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier  \"!**/*.{html,json}\" --write ."
+  },
+  "dependencies": {
+    "@elastic/ecs-pino-format": "1.5.0",
+    "pino": "^9.6.0",
+    "pino-elasticsearch": "8.1.0",
+    "pino-pretty": "^13.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  },
+  "author": "",
+  "license": "ISC",
+  "jest": {
+    "testMatch": [
+      "**/src/__tests__/**/*.(test|spec).ts?(x)"
+    ]
+  }
+}

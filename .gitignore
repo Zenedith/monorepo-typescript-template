@@ -1,0 +1,7 @@
+packages/*/dist
+apps/*/dist
+libs/*/dist
+node_modules
+coverage
+dist/
+.idea/

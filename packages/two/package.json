@@ -1,0 +1,36 @@
+{
+  "name": "@project/two",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@project/core": "workspace:*",
+    "morgan": "1.10.0",
+    "node-uuid": "1.4.8"
+  },
+  "scripts": {
+    "build": "rm -rf dist/* && tsc -p tsconfig.pkg.json",
+    "test": "jest",
+    "ncu": "ncu -u",
+    "tsc:check": "tsc --noEmit -p tsconfig.pkg.json",
+    "tsc:watch": "tsc -w -p tsconfig.pkg.json",
+    "tsx": "tsx watch src/server.ts",
+    "start:node": "node dist/server.js",
+    "start:watch": "nodemon --watch dist dist/server.js",
+    "start:dev": "concurrently --kill-others \"tsc -w -p tsconfig.pkg.json  && node ./dist.js\" \"nodemon --watch dist dist/server.js\"",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier  \"!**/*.{html,json}\" --write ."
+  },
+  "devDependencies": {
+    "@types/express": "5.0.0",
+    "@types/morgan": "1.9.9",
+    "@types/node-uuid": "0.0.32",
+    "typescript": "^5.7.3"
+  },
+  "jest": {
+    "testMatch": [
+      "**/src/__tests__/**/*.(test|spec).ts?(x)"
+    ]
+  }
+}
