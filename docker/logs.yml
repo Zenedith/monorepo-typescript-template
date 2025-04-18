@@ -1,0 +1,47 @@
+services:
+  elasticsearch:
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:8.17.3'
+    container_name: elasticsearch
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+      - CLI_JAVA_OPTS=-Xms4g -Xmx4g
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+    ports:
+      - '9200:9200'
+    labels:
+      co.elastic.logs/enabled: "false"
+      co.elastic.logs/module: "elasticsearch"
+
+  kibana:
+    image: 'docker.elastic.co/kibana/kibana:8.17.3'
+    container_name: kibana
+    environment:
+      - 'ELASTICSEARCH_HOSTS=http://elasticsearch:9200'
+    ports:
+      - '5601:5601'
+    depends_on:
+      - elasticsearch
+    labels:
+      co.elastic.logs/enabled: "false"
+
+  filebeat:
+    image: 'docker.elastic.co/beats/filebeat:8.17.3'
+    container_name: filebeat
+    user: root
+    command: filebeat --strict.perms=false --environment container -c /usr/share/filebeat/filebeat.yml -e -d "*"
+    depends_on:
+      - elasticsearch
+    volumes:
+      - '~/filebeat.yml:/usr/share/filebeat/filebeat.yml'
+      - '/var/lib/docker:/var/lib/docker'
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    labels:
+      co.elastic.logs/enabled: "false"
+
+volumes:
+  elasticsearch-data:
+    driver: local

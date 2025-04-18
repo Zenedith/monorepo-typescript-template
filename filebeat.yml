@@ -1,0 +1,37 @@
+filebeat.config:
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+      #      hints.default_config.enabled: false
+      #      templates:
+      #        - condition:
+      #          equals:
+      #            docker.container.labels.co.elastic.logs/enabled: "true"
+      #            container.labels.co.elastic.logs/enabled: "true"
+      #            container.labels.co_elastic_logs/enabled: "true"
+      hints.default_config:
+        type: container
+        paths:
+          - /var/lib/docker/containers/${data.container.id}/*.log
+
+processors:
+  - add_docker_metadata: ~
+
+output.elasticsearch:
+  enabled: true
+  hosts: 'http://elasticsearch:9200'
+
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 1
+  permissions: 0644
+
+logging.metrics.enabled: false

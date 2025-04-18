@@ -1,0 +1,28 @@
+services:
+  traefik:
+    image: "traefik:3"
+    container_name: "traefik"
+    command:
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.entryPoint=metrics"
+      - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.metrics.address=:8082"
+      - "--entryPoints.api.address=:4000"
+      - "--entryPoints.api.forwardedHeaders.insecure"
+      - "--entryPoints.api.transport.respondingTimeouts.writeTimeout=10"
+      - "--entryPoints.api.transport.respondingTimeouts.readTimeout=10"
+
+    ports:
+      - "8080:8080"
+      - "8082:8082"
+      - "4000:4000"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    labels:
+      co.elastic.logs/enabled: "true"
+      co.elastic.logs/json.overwrite_keys: true
+      co.elastic.logs/json.add_error_key: true
+      co.elastic.logs/json.expand_keys: true

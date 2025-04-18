@@ -1,67 +1,21 @@
+include:
+  - docker/database.yml
+  - docker/logs.yml
+  - docker/monitoring.yml
+  - docker/edge.yml
+  - docker/service.yml
 services:
   base:
-    image: "project-base:latest"
     build:
-#      no_cache: true
       context: .
       dockerfile: Dockerfile.base
-      tags:
-        - "latest"
-        - "0.0.1"
+    command: [ ]
     volumes:
       - node_modules:/app/node_modules
-
-  one:
-    image: "project-one:latest"
-    build:
-#      no_cache: true
-      context: ./packages/one
-      tags:
-        - "latest"
-        - "0.0.1"
-    depends_on:
-      - base
-  two:
-    image: "project-two:latest"
-    build:
-#      no_cache: true
-      context: ./packages/two
-      tags:
-        - "latest"
-        - "0.0.1"
-    ports:
-      - "4000:4000"
-    depends_on:
-      - base
-
-  mongodb:
-    image: mongo:8.0
-    container_name: mongodb
-    restart: always
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: project
-      MONGO_INITDB_ROOT_PASSWORD: project
-    volumes:
-      - mongo-data:/data/db
-      - mongo-config:/data/configdb
-  redis:
-    image: redis:7.2.6
-    container_name: redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes
-    restart: always
+    deploy:
+      mode: replicated
+      replicas: 0
 
 volumes:
   node_modules:
-    driver: local
-  mongo-data:
-    driver: local
-  mongo-config:
-    driver: local
-  redis_data:
     driver: local

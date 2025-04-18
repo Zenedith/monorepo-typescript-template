@@ -1,0 +1,39 @@
+services:
+
+  api:
+    image: "project-api:latest"
+    build:
+      context: ./packages/one
+      tags:
+        - "latest"
+        - "0.0.1"
+    labels:
+      co.elastic.logs/enabled: "true"
+      co.elastic.logs/json.overwrite_keys: true
+      co.elastic.logs/json.add_error_key: true
+      co.elastic.logs/json.expand_keys: true
+
+  one:
+    image: "project-one:latest"
+    build:
+      context: ./packages/one
+      tags:
+        - "latest"
+        - "0.0.1"
+    labels:
+      co.elastic.logs/enabled: "true"
+      co.elastic.logs/json.overwrite_keys: true
+      co.elastic.logs/json.add_error_key: true
+      co.elastic.logs/json.expand_keys: true
+
+  two:
+    build:
+      context: ./packages/two
+      tags:
+        - "latest"
+        - "0.0.1"
+    labels:
+      co.elastic.logs/enabled: "true"
+      co.elastic.logs/json.overwrite_keys: true
+      co.elastic.logs/json.add_error_key: true
+      co.elastic.logs/json.expand_keys: true

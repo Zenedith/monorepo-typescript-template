@@ -1,0 +1,64 @@
+services:
+  mongodb:
+    image: mongo:8
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: project
+      MONGO_INITDB_ROOT_PASSWORD: project
+    volumes:
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
+    labels:
+      co.elastic.logs/enabled: "false"
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory-policy noeviction --hz 100
+    restart: always
+    labels:
+      co.elastic.logs/enabled: "true"
+      co.elastic.logs/module: redis
+      co.elastic.logs/fileset.stdout: log
+      co.elastic.metrics/enabled: "true"
+      co.elastic.metrics/module: redis
+
+  mongodb_exporter:
+    container_name: mongodb_exporter
+    image: percona/mongodb_exporter:0.44.0
+    ports:
+      - "9216:9216"
+    depends_on:
+      - mongodb
+    command:
+      - "--mongodb.user=project"
+      - "--mongodb.password=project"
+      - "--mongodb.uri=mongodb://mongodb:27017/?tls=false"
+      - "--mongodb.collstats-colls=project.*"
+      - "--mongodb.indexstats-colls=project.*"
+      - "--collector.diagnosticdata"
+      - "--collector.dbstats"
+      - "--collector.topmetrics"
+      - "--collector.currentopmetrics"
+      - "--collector.indexstats"
+      - "--collector.collstats"
+      - "--discovering-mode"
+#      - "--collect-all"
+      #- "--log.level=debug"
+    labels:
+      co.elastic.logs/enabled: "false"
+
+volumes:
+  mongo-data:
+    driver: local
+  mongo-config:
+    driver: local
+  redis_data:
+    driver: local
