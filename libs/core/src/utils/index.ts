@@ -1,2 +1,2 @@
-export * from "./logger.js";
-export * from "./delay.js";
+export * from "./logger";
+export * from "./delay";
