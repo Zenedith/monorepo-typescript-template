@@ -1,30 +1,17 @@
 import pino from "pino";
+import { pinoLoki } from "pino-loki";
 import { ecsFormat } from "@elastic/ecs-pino-format";
+import pinoElastic from "pino-elasticsearch";
+import os from "os";
+import pretty from "pino-pretty";
 
-let transport;
+import { config } from "../config/env";
 
-if (process.env.NODE_ENV === "production") {
-  transport =
-    {
-      target: "pino-elasticsearch",
-      options: {
-        index: "project",
-        node: "http://192.168.2.8:9200",
-        esVersion: 8,
-        flushBytes: 1000,
-      },
-    };
-} else {
-  transport = {
-    target: "pino-pretty",
-    options: {
-      colorize: true,
-    },
-  };
-}
+const DC = process.env.DC || "local";
+const LOGGER_MIN_LEVEL = process.env.LOGGER_MIN_LEVEL || "info";
 
-let config = {
-  level: process.env.NODE_ENV === "production" ? "info" : "debug",
+const loggerConfig = {
+  level: LOGGER_MIN_LEVEL,
   //DO NOT USE WITH ECS!
   // formatters: {
   //   level: (label: string) => {
@@ -32,16 +19,34 @@ let config = {
   //   },
   // },
   timestamp: pino.stdTimeFunctions.isoTime,
-  transport: transport,
 };
 
-if (process.env.NODE_ENV === "production") {
-  config = {
-    ...config,
-    ...ecsFormat,
-    // ...ecsFormat({ convertReqRes: true }),
-  };
-}
+const logger = config.loggerMode === "elasticsearch"
+    ? pino(
+        {
+          ...loggerConfig,
+          ...ecsFormat,
+        },
+        pinoElastic(
+            {
+              index: "project",
+              node: config.elasticsearchNode,
+              esVersion: 8,
+              flushBytes: 1000,
+            },
+        ))
+    : config.loggerMode === "loki" ? pino(pinoLoki({
+          batching: true,
+          interval: 60,
+          host: config.lokiNode,
+          labels: { app: "project", hostname: os.hostname(), dc: DC },
+        }))
+        : pino({
+              ...loggerConfig,
+            },
+            pretty({
+              colorize: process.env.NODE_ENV !== "production",
+            }),
+        );
 
-
-export const logger = pino(config);
+export { logger };
