@@ -2,10 +2,9 @@ import {logger} from "@project/core";
 import {buildSchema} from "graphql";
 import express from "express";
 import {createHandler} from "graphql-http/lib/use/express";
-// @ts-expect-error check it
 import {ruruHTML} from "ruru/server";
 import morgan from "morgan";
-import uuid from "node-uuid";
+import { v4 as uuid } from "uuid";
 
 const serverLogger = logger.child({logger: "server"});
 
@@ -33,7 +32,7 @@ const root = {
 const app = express();
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 app.use((req: any, res: unknown, next) => {
-    req.id = uuid.v4();
+    req.id = uuid();
     next();
 });
 

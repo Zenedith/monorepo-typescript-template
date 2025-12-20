@@ -1,14 +1,14 @@
 import {logger} from "@project/core";
 import express from "express";
 import morgan from "morgan";
-import uuid from "node-uuid";
+import { v4 as uuid } from "uuid";
 
 const serverLogger = logger.child({logger: "server"});
 const port = 4001;
 const app = express();
 
 app.use((req: any, res: any, next) => { // eslint-disable-line
-    req.id = uuid.v4();
+    req.id = uuid();
     next();
 });
 

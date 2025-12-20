@@ -1,0 +1,15 @@
+include:
+  - database.yml
+  - logs.yml
+  - monitoring.yml
+  - edge.yml
+  - service.yml
+services:
+  base:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.base
+    command: [ ]
+    deploy:
+      mode: replicated
+      replicas: 0
