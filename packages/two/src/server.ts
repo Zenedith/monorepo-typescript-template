@@ -1,24 +1,45 @@
 import {logger} from "@project/core";
 import express from "express";
 import morgan from "morgan";
-import { v4 as uuid } from "uuid";
+import {ExpressPrometheusMiddleware} from "@matteodisabatino/express-prometheus-middleware";
+import {v4} from "uuid";
+
+const prometheus = new ExpressPrometheusMiddleware();
 
 const serverLogger = logger.child({logger: "server"});
 const port = 4001;
 const app = express();
+app.use(prometheus.handler);
 
-app.use((req: any, res: any, next) => { // eslint-disable-line
-    req.id = uuid();
+
+// Request ID middleware
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+app.use((req: any, res: unknown, next) => {
+    req.id = req.headers["x-request-id"] || v4();
+    req.deviceId = req.headers["x-device-id"];
+    req.appVersion = req.headers["x-app-version"];
+    req.xForwardedHost = req.headers["x-forwarded-host"];
     next();
 });
 
-morgan.token("id", (req: any) => req.id); // eslint-disable-line
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+morgan.token("id", (req: any) => req.id);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+morgan.token("xForwardedHost", (req: any) => req.xForwardedHost);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+morgan.token("deviceId", (req: any) => req.deviceId);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+morgan.token("appVersion", (req: any) => req.appVersion);
 
+app.use(prometheus.handler);
 app.use(
     morgan((tokens, req, res) => {
         const entry = {
             date: tokens.date(req, res, "iso"),
             requestId: tokens.id(req, res),
+            deviceId: tokens.deviceId(req, res),
+            appVersion: tokens.appVersion(req, res),
+            xForwardedHost: tokens.xForwardedHost(req, res),
             ip: tokens["remote-addr"](req, res),
             userAgent: tokens["user-agent"](req, res),
             method: tokens.method(req, res),
@@ -26,8 +47,9 @@ app.use(
             status: parseInt(tokens.status(req, res) || "500", 10),
             responseTime: tokens["response-time"](req, res),
         };
-        serverLogger.info(entry, "HTTP request");
-        return `${entry.date} ${entry.method} ${entry.url} ${entry.status} ${entry.userAgent} - ${entry.responseTime} ms`;
+        const request = `${entry.date} ${entry.method} ${entry.url} ${entry.status} ${entry.userAgent} - ${entry.responseTime} ms`;
+        serverLogger.info(entry, request);
+        return request;
     }),
 );
 
